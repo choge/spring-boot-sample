@@ -2,6 +2,7 @@ package net.choge.myapp.api.service.impl;
 
 import net.choge.myapp.api.entity.TodoItemEntity;
 import net.choge.myapp.api.entity.TodoStatusEntity;
+import net.choge.myapp.api.publisher.TodoEventPublisher;
 import net.choge.myapp.api.repository.TodoRepository;
 import net.choge.myapp.api.service.TodoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +15,12 @@ public class TodoServiceImpl implements TodoService {
 
     private TodoRepository repo;
 
-    public TodoServiceImpl(@Autowired TodoRepository repo) {
+    private TodoEventPublisher publisher;
+
+    public TodoServiceImpl(@Autowired TodoRepository repo,
+                           @Autowired TodoEventPublisher publisher) {
         this.repo = repo;
+        this.publisher = publisher;
     }
 
     @Override
@@ -25,7 +30,11 @@ public class TodoServiceImpl implements TodoService {
 
     @Override
     public TodoItemEntity loadSingleTodoItem(String userId, String todoId) {
-        return repo.retrieveTodoItem(userId, todoId);
+        TodoItemEntity todo = repo.retrieveTodoItem(userId, todoId);
+
+        publisher.publishTodoEvent(todo);
+
+        return todo;
     }
 
     @Override

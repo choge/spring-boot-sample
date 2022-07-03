@@ -1,8 +1,5 @@
 package net.choge.myapp.api.dto;
 
-import net.choge.myapp.api.entity.TodoStatusEntity;
-import org.springframework.util.StringUtils;
-
 import java.util.Objects;
 
 public enum TodoStatus {
