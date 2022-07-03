@@ -1,0 +1,319 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: A stack for infrastructure of Anki app
+
+Metadata:
+  "AWS::CloudFormation::Interface":
+    ParameterGroups:
+      - Label:
+          default: "Project Name Prefix"
+        Parameters:
+          - ProjectName
+
+Parameters:
+  ProjectName:
+    Default: mydemo
+    Type: String
+  Env:
+    Default: test
+    Type: String
+
+Resources:
+  #-----------------------------------------------------------
+  # VPC
+  #-----------------------------------------------------------
+  Vpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 192.168.16.0/22
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-${Env}-vpc
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-${Env}-internet-gateway
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref Vpc
+
+  #-----------------------------------------------------------
+  # Subnets
+  #-----------------------------------------------------------
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: "ap-northeast-1a"
+      CidrBlock: 192.168.16.0/25
+      VpcId: !Ref Vpc
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-${Env}-public-subnet-1
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: "ap-northeast-1c"
+      CidrBlock: 192.168.16.128/25
+      VpcId: !Ref Vpc
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-${Env}-public-subnet-2
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: "ap-northeast-1a"
+      CidrBlock: 192.168.18.0/25
+      VpcId: !Ref Vpc
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-${Env}-private-subnet-1
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: "ap-northeast-1c"
+      CidrBlock: 192.168.18.128/25
+      VpcId: !Ref Vpc
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-${Env}-private-subnet-2
+
+  #-----------------------------------------------------------
+  # Route Tables, Routes, and association
+  #-----------------------------------------------------------
+  RouteTableForPublic:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Vpc
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-${Env}-route-table-public
+  ReuteTableForPrivate:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Vpc
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-${Env}-route-table-private
+
+  RouteForPublic:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref RouteTableForPublic
+      DestinationCidrBlock: "0.0.0.0/0"
+      GatewayId: !Ref InternetGateway
+
+  RouteTableAssociationForPublic1:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref RouteTableForPublic
+      SubnetId: !Ref PublicSubnet1
+
+  RouteTableAssociationForPublic2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref RouteTableForPublic
+      SubnetId: !Ref PublicSubnet2
+
+  #RouteForPrivate:
+  #  Type: AWS::EC2::Route
+  #  Properties:
+  #    RouteTableId: !Ref RouteTableForPublic
+  #    DestinationCidrBlock: "0.0.0.0/0"
+  #    GatewayId: !Ref InternetGateway
+  RouteTableAssociationForPrivate1:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref RouteTableForPublic
+      SubnetId: !Ref PrivateSubnet1
+
+  RouteTableAssociationForPrivate2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref RouteTableForPublic
+      SubnetId: !Ref PrivateSubnet2
+
+  SecurityGroupForALB:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: SecurityGroup for ALB
+      VpcId: !Ref Vpc
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-${Env}-security-group-alb
+
+  SecurityGroupForContainers:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: SecurityGroup for ECS containers
+      VpcId: !Ref Vpc
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-${Env}-security-group-containers
+
+  SecurityGroupIngressForALBHTTP:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref SecurityGroupForALB
+      IpProtocol: tcp
+      FromPort: 80
+      ToPort: 80
+      CidrIp: 0.0.0.0/0
+
+  SecurityGroupIngressForALBHTTPS:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref SecurityGroupForALB
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      CidrIp: 0.0.0.0/0
+
+  SecurityGroupIngressForContainers:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref SecurityGroupForALB
+      IpProtocol: tcp
+      FromPort: 8080
+      ToPort: 8080
+      SourceSecurityGroupId: !Ref SecurityGroupForALB
+
+  #-----------------------------------------------------------
+  # Route Tables, Routes, and association
+  #-----------------------------------------------------------
+  Alb:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Scheme: internet-facing
+      Subnets:
+        - !Ref PublicSubnet1
+        - !Ref PublicSubnet2
+      SecurityGroups:
+        - !Ref SecurityGroupForALB
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-${Env}-alb-public
+
+  AlbListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref DefaultTargetGroup
+      LoadBalancerArn: !Ref Alb
+
+  AlbListenerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    DependsOn: AlbListener
+    Properties:
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref DefaultTargetGroup
+      Conditions:
+        - Field: path-pattern
+          Values:
+            - /
+      ListenerArn: !Ref AlbListener
+      Priority: 1
+
+  DefaultTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckEnabled: true
+      HealthCheckIntervalSeconds: 30
+      HealthCheckPath: /actuator/health
+      HealthCheckPort: 8080
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      Name: !Sub ${ProjectName}-${Env}-albtg-default
+      Port: 8080
+      Protocol: HTTP
+      VpcId: !Ref Vpc
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-${Env}-alb-tg-main
+
+  EcrRepo:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Sub ${ProjectName}-${Env}-ecr-repo
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-${Env}-ecr-repo-main
+
+  EcsCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      CapacityProviders:
+        - FARGATE_SPOT
+      ClusterName: !Sub ${ProjectName}-${Env}-ecs-cluster
+      ClusterSettings:
+        - Name: containerInsights
+          Value: enabled
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-${Env}-ecs-cluster-main
+
+  Sns:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: !Sub ${ProjectName}-${Env}-sns-topic
+      TopicName: !Sub ${ProjectName}-${Env}-sns-topic
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-${Env}-sns-topic-main
+
+  Sqs:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub ${ProjectName}-${Env}-sqs-queue
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-${Env}-sqs-queue-main
+
+  SnsSubscriptionBySqs:
+    Type: AWS::SNS::Subscription
+    Properties:
+      TopicArn: !Ref Sns
+      Endpoint: !GetAtt
+        - Sqs
+        - Arn
+      Protocol: sqs
+      RawMessageDelivery: true
+
+  #-----------------------------------------------------------
+  # DynamoDB Tables
+  #-----------------------------------------------------------
+  TodoTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${ProjectName}-${Env}-ddb-table-todo
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+        - AttributeName: id
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+        - AttributeName: id
+          KeyType: RANGE
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-${Env}-ddb-table-todo
+
+  #-----------------------------------------------------------
+  # Roles!
+  #-----------------------------------------------------------
+  # Nothing has been defined yet

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="AnkiCardsAPI" target="11" />
+      <module name="AnkiCardsBackend" target="11" />
+      <module name="myapp-api" target="17" />
+      <module name="myapp-backend" target="17" />
+      <module name="myapp-framework" target="17" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="AnkiCardsAPI" options="-parameters" />
+      <module name="AnkiCardsBackend" options="-parameters" />
+      <module name="myapp-api" options="-parameters" />
+      <module name="myapp-backend" options="-parameters" />
+      <module name="myapp-framework" options="-parameters" />
+    </option>
+  </component>
+</project>

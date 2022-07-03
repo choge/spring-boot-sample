@@ -1,0 +1,15 @@
+app:
+  tables:
+    todo: 'myapp-test-ddb-table-todo'
+
+spring:
+  security:
+    user:
+      name: user
+      password: password
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
