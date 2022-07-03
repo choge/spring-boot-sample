@@ -291,6 +291,19 @@ Resources:
       Protocol: sqs
       RawMessageDelivery: true
 
+  SqsQueuePolicyToAllowReceivingMessages:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: sns.amazonaws.com
+            Action: 'sqs:SendMessage'
+            Resource: '*'
+      Queues:
+        - !Ref Sqs
+
   #-----------------------------------------------------------
   # DynamoDB Tables
   #-----------------------------------------------------------
