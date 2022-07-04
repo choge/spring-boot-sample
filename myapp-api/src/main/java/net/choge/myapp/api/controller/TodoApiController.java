@@ -8,10 +8,7 @@ import net.choge.myapp.api.service.TodoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.ZonedDateTime;
 import java.util.Objects;
@@ -29,12 +26,23 @@ public class TodoApiController {
 
     @GetMapping("/{id}")
     public TodoItem getTodo(@PathVariable String id) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String userId = auth.getName();
+        String userId = extractUserId();
         TodoItemEntity todo = service.loadSingleTodoItem(userId, id);
         if (Objects.isNull(todo)) {
             return null;
         }
         return new TodoItem(todo.getId(), ZonedDateTime.now(), todo.getContent(), TodoStatus.from(todo.getStatus()));
+    }
+
+    @PostMapping("{id}")
+    public TodoItem createTodo(@PathVariable String id, @RequestBody TodoItem todo) {
+        String userId = extractUserId();
+        TodoItemEntity todoItemEntity = new TodoItemEntity(userId, id, todo.getContent(), todo.getDue(), todo.getStatus().name());
+        TodoItemEntity created = service.createNewTodo(userId, id, todoItemEntity);
+        return new TodoItem(created.getId(), created.getDue(), created.getContent(), TodoStatus.from(created.getStatus()));
+    }
+
+    private String extractUserId() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 }

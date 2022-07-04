@@ -41,4 +41,14 @@ public class TodoServiceImpl implements TodoService {
     public boolean updateTodoStatus(String userId, String todoId, TodoStatusEntity status) {
         return false;
     }
+
+    @Override
+    public TodoItemEntity createNewTodo(String userId, String todoId, TodoItemEntity todo) {
+        todo.setUserId(userId);
+        todo.setId(todoId);
+        repo.createOrUpdateTodoItem(todo);
+
+        // TODO: Should leverage putItemWithResponse, maybe.
+        return repo.retrieveTodoItem(userId, todoId);
+    }
 }
