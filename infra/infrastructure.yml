@@ -326,6 +326,21 @@ Resources:
         - Key: Name
           Value: !Sub ${ProjectName}-${Env}-ddb-table-todo
 
+  # Another table just to confirm we can measure the time using X-Ray inside a Runnable
+  AnotherTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${ProjectName}-${Env}-ddb-table-another
+      AttributeDefinitions:
+        - AttributeName: messageId
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      KeySchema:
+        - AttributeName: messageId
+          KeyType: HASH
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-${Env}-ddb-table-another
   #-----------------------------------------------------------
   # Roles!
   #-----------------------------------------------------------
