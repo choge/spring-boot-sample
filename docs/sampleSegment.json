@@ -1,0 +1,47 @@
+{
+  "name": "myapp",
+  "id": "2f0bb4e068df2d34",
+  "start_time": 1656935096.657,
+  "trace_id": "1-62c2d2b8-8f69d6a9be78a5b47999a8dc",
+  "in_progress": true,
+  "subsegments": [
+    {
+      "name": "DynamoDb",
+      "id": "0bf8ad36da4426a6",
+      "start_time": 1656935096.713,
+      "end_time": 1656935096.967,
+      "namespace": "aws",
+      "http": {
+        "response": {
+          "content_length": 2,
+          "status": 200
+        }
+      },
+      "aws": {
+        "retries": 0,
+        "region": "ap-northeast-1",
+        "operation": "PutItem",
+        "table_name": "mydemo-test-ddb-table-todo",
+        "request_id": "H3K3K7M6PSU78PLG6ANEUPSL43VV4KQNSO5AEMVJF66Q9ASUAAJG"
+      }
+    }
+  ],
+  "http": {
+    "request": {
+      "method": "POST",
+      "client_ip": "127.0.0.1",
+      "url": "http://localhost:8080/todos/2",
+      "user_agent": "curl/7.79.1"
+    }
+  },
+  "aws": {
+    "xray": {
+      "sdk_version": "2.11.0",
+      "sdk": "X-Ray for Java"
+    }
+  },
+  "service": {
+    "runtime_version": "17.0.1",
+    "runtime": "OpenJDK 64-Bit Server VM"
+  }
+}

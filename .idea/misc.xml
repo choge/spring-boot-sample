@@ -4,6 +4,7 @@
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/myapp-api/pom.xml" />
+        <option value="$PROJECT_DIR$/myapp-batch/pom.xml" />
       </list>
     </option>
   </component>

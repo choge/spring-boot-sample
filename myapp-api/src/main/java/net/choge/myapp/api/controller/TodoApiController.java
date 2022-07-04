@@ -10,6 +10,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
@@ -31,18 +33,25 @@ public class TodoApiController {
         if (Objects.isNull(todo)) {
             return null;
         }
-        return new TodoItem(todo.getId(), ZonedDateTime.now(), todo.getContent(), TodoStatus.from(todo.getStatus()));
+        return fromTodoItemEntity(todo);
     }
 
     @PostMapping("{id}")
     public TodoItem createTodo(@PathVariable String id, @RequestBody TodoItem todo) {
         String userId = extractUserId();
-        TodoItemEntity todoItemEntity = new TodoItemEntity(userId, id, todo.getContent(), todo.getDue(), todo.getStatus().name());
+        TodoItemEntity todoItemEntity = new TodoItemEntity(userId, id, todo.getContent(), todo.getDue().toInstant().toEpochMilli(), todo.getStatus().name());
         TodoItemEntity created = service.createNewTodo(userId, id, todoItemEntity);
-        return new TodoItem(created.getId(), created.getDue(), created.getContent(), TodoStatus.from(created.getStatus()));
+        return fromTodoItemEntity(created);
     }
 
     private String extractUserId() {
         return SecurityContextHolder.getContext().getAuthentication().getName();
+    }
+
+    private TodoItem fromTodoItemEntity(TodoItemEntity todoItemEntity) {
+        return new TodoItem(todoItemEntity.getId(),
+            ZonedDateTime.ofInstant(Instant.ofEpochMilli(todoItemEntity.getDueAsUnixtime()), ZoneId.of("UTC")),
+            // Is this that messy...??? Anyway should externalize as a util class or something.
+            todoItemEntity.getContent(), TodoStatus.from(todoItemEntity.getStatus()));
     }
 }
