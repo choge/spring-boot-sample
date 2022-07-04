@@ -32,8 +32,6 @@ public class TodoServiceImpl implements TodoService {
     public TodoItemEntity loadSingleTodoItem(String userId, String todoId) {
         TodoItemEntity todo = repo.retrieveTodoItem(userId, todoId);
 
-        publisher.publishTodoEvent(todo);
-
         return todo;
     }
 
@@ -47,6 +45,8 @@ public class TodoServiceImpl implements TodoService {
         todo.setUserId(userId);
         todo.setId(todoId);
         repo.createOrUpdateTodoItem(todo);
+
+        publisher.publishTodoEvent(todo);
 
         // TODO: Should leverage putItemWithResponse, maybe.
         return repo.retrieveTodoItem(userId, todoId);
