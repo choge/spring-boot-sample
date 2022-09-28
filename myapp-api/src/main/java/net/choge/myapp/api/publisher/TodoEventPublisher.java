@@ -1,7 +1,7 @@
 package net.choge.myapp.api.publisher;
 
-import net.choge.myapp.api.entity.TodoItemEntity;
+import net.choge.myapp.api.entity.TodoItem;
 
 public interface TodoEventPublisher {
-    public boolean publishTodoEvent(TodoItemEntity todo);
+    boolean publishTodoEvent(TodoItem todo);
 }

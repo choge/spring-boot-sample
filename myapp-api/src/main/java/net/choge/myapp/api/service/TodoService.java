@@ -1,14 +1,14 @@
 package net.choge.myapp.api.service;
 
-import net.choge.myapp.api.entity.TodoItemEntity;
+import net.choge.myapp.api.entity.TodoItem;
 import net.choge.myapp.api.entity.TodoStatusEntity;
 
 import java.util.List;
 
 public interface TodoService {
-    List<TodoItemEntity> loadAllTodosForUser(String userId);
-    TodoItemEntity loadSingleTodoItem(String userId, String todoId);
+    List<TodoItem> loadAllTodosForUser(String userId);
+    TodoItem loadSingleTodoItem(String userId, String todoId);
     boolean updateTodoStatus(String userId, String todoId, TodoStatusEntity status);
 
-    TodoItemEntity createNewTodo(String userId, String todoId, TodoItemEntity todo);
+    TodoItem createNewTodo(String userId, String todoId, TodoItem todo);
 }

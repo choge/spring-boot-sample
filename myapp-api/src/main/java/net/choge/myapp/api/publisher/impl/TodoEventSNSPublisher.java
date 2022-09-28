@@ -2,11 +2,10 @@ package net.choge.myapp.api.publisher.impl;
 
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.Segment;
-import com.amazonaws.xray.entities.TraceID;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
-import net.choge.myapp.api.entity.TodoItemEntity;
+import net.choge.myapp.api.entity.TodoItem;
 import net.choge.myapp.api.publisher.TodoEventPublisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,7 +33,7 @@ public class TodoEventSNSPublisher implements TodoEventPublisher {
     }
 
     @Override
-    public boolean publishTodoEvent(TodoItemEntity todo) {
+    public boolean publishTodoEvent(TodoItem todo) {
         PublishResponse res = client.publish(req -> {
             try {
                 req

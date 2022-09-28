@@ -7,7 +7,7 @@ import java.time.ZonedDateTime;
 
 @Data
 @AllArgsConstructor
-public class TodoItem {
+public class TodoItemDTO {
     private String id;
     private ZonedDateTime due;
     private String content;

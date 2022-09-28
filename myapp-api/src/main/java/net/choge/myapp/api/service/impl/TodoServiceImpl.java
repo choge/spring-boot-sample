@@ -1,6 +1,6 @@
 package net.choge.myapp.api.service.impl;
 
-import net.choge.myapp.api.entity.TodoItemEntity;
+import net.choge.myapp.api.entity.TodoItem;
 import net.choge.myapp.api.entity.TodoStatusEntity;
 import net.choge.myapp.api.publisher.TodoEventPublisher;
 import net.choge.myapp.api.repository.TodoRepository;
@@ -24,15 +24,13 @@ public class TodoServiceImpl implements TodoService {
     }
 
     @Override
-    public List<TodoItemEntity> loadAllTodosForUser(String userId) {
+    public List<TodoItem> loadAllTodosForUser(String userId) {
         return null;
     }
 
     @Override
-    public TodoItemEntity loadSingleTodoItem(String userId, String todoId) {
-        TodoItemEntity todo = repo.retrieveTodoItem(userId, todoId);
-
-        return todo;
+    public TodoItem loadSingleTodoItem(String userId, String todoId) {
+        return repo.retrieveTodoItem(userId, todoId);
     }
 
     @Override
@@ -41,7 +39,7 @@ public class TodoServiceImpl implements TodoService {
     }
 
     @Override
-    public TodoItemEntity createNewTodo(String userId, String todoId, TodoItemEntity todo) {
+    public TodoItem createNewTodo(String userId, String todoId, TodoItem todo) {
         todo.setUserId(userId);
         todo.setId(todoId);
         repo.createOrUpdateTodoItem(todo);

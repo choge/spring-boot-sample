@@ -23,7 +23,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="AnkiCardsAPI" options="-parameters" />
       <module name="AnkiCardsBackend" options="-parameters" />
-      <module name="myapp-api" options="-parameters" />
+      <module name="myapp-api" options="" />
       <module name="myapp-backend" options="-parameters" />
       <module name="myapp-batch" options="-parameters" />
       <module name="myapp-framework" options="-parameters" />

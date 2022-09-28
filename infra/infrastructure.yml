@@ -96,7 +96,7 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub ${ProjectName}-${Env}-route-table-public
-  ReuteTableForPrivate:
+  RouteTableForPrivate:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref Vpc
@@ -187,7 +187,7 @@ Resources:
       SourceSecurityGroupId: !Ref SecurityGroupForALB
 
   #-----------------------------------------------------------
-  # Route Tables, Routes, and association
+  # ALB
   #-----------------------------------------------------------
   Alb:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer

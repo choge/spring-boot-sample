@@ -5,13 +5,11 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
 
-import java.time.ZonedDateTime;
-
 @DynamoDbBean
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TodoItemEntity {
+public class TodoItem {
     @Getter(onMethod = @__({@DynamoDbPartitionKey}))
     private String userId;
 
